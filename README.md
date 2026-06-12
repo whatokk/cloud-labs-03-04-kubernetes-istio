@@ -30,3 +30,12 @@ The workflow follows the Istio getting started guide:
 
 The GitHub Actions workflow `.github/workflows/lab3-lab4.yml` runs the experiments on an Ubuntu runner and uploads logs under the `evidence` artifact.
 
+Successful run:
+
+- https://github.com/whatokk/cloud-labs-03-04-kubernetes-istio/actions/runs/27429016540
+
+Generated reports:
+
+- `report/Lab3_Kubernetes_Minikube_Report.pdf`
+- `report/Lab4_Istio_Bookinfo_Report.pdf`
+- `report/Lab3_Lab4_Kubernetes_Istio_Report.pdf`

@@ -1,0 +1,697 @@
+
+============================================================
+Environment
+============================================================
+
+## docker --version
+Docker version 28.0.4, build b8034c0
+
+## kubectl version --client=true
+Client Version: v1.36.2
+Kustomize Version: v5.8.1
+
+## minikube version
+minikube version: v1.38.1
+commit: c93a4cb9311efc66b90d33ea03f75f2c4120e9b0
+
+============================================================
+Start Minikube
+============================================================
+
+## minikube start --driver=docker --memory=4096 --cpus=2
+* minikube v1.38.1 on Ubuntu 24.04
+* Using the docker driver based on user configuration
+! Starting v1.39.0, minikube will default to "containerd" container runtime. See #21973 for more info.
+* Using Docker driver with root privileges
+* Starting "minikube" primary control-plane node in "minikube" cluster
+* Pulling base image v0.0.50 ...
+* Downloading Kubernetes v1.35.1 preload ...
+    > gcr.io/k8s-minikube/kicbase...:  0 B [_______________________] ?% ? p/s ?    > gcr.io/k8s-minikube/kicbase...:  1.60 KiB / 519.58 MiB [>_] 0.00% ? p/s ?    > gcr.io/k8s-minikube/kicbase...:  1.60 KiB / 519.58 MiB [>_] 0.00% ? p/s ?    > gcr.io/k8s-minikube/kicbase...:  24.00 MiB / 519.58 MiB  4.62% 40.04 MiB     > gcr.io/k8s-minikube/kicbase...:  45.70 MiB / 519.58 MiB  8.79% 40.04 MiB     > gcr.io/k8s-minikube/kicbase...:  69.17 MiB / 519.58 MiB  13.31% 40.04 MiB    > gcr.io/k8s-minikube/kicbase...:  96.00 MiB / 519.58 MiB  18.48% 45.18 MiB    > gcr.io/k8s-minikube/kicbase...:  128.73 MiB / 519.58 MiB  24.78% 45.18 Mi    > gcr.io/k8s-minikube/kicbase...:  152.00 MiB / 519.58 MiB  29.25% 45.18 Mi    > gcr.io/k8s-minikube/kicbase...:  184.00 MiB / 519.58 MiB  35.41% 51.73 Mi    > gcr.io/k8s-minikube/kicbase...:  219.57 MiB / 519.58 MiB  42.26% 51.73 Mi    > gcr.io/k8s-minikube/kicbase...:  264.03 MiB / 519.58 MiB  50.82% 51.73 Mi    > gcr.io/k8s-minikube/kicbase...:  302.44 MiB / 519.58 MiB  58.21% 61.15 Mi    > gcr.io/k8s-minikube/kicbase...:  335.00 MiB / 519.58 MiB  64.48% 61.15 Mi    > gcr.io/k8s-minikube/kicbase...:  382.03 MiB / 519.58 MiB  73.53% 61.15 Mi    > gcr.io/k8s-minikube/kicbase...:  392.00 MiB / 519.58 MiB  75.45% 66.82 Mi    > gcr.io/k8s-minikube/kicbase...:  415.85 MiB / 519.58 MiB  80.04% 66.82 Mi    > gcr.io/k8s-minikube/kicbase...:  451.35 MiB / 519.58 MiB  86.87% 66.82 Mi    > gcr.io/k8s-minikube/kicbase...:  489.63 MiB / 519.58 MiB  94.24% 73.02 Mi    > gcr.io/k8s-minikube/kicbase...:  519.58 MiB / 519.58 MiB  100.00% 137.57 * Configuring bridge CNI (Container Networking Interface) ...
+* Verifying Kubernetes components...
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Enabled addons: storage-provisioner, default-storageclass
+* Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+
+## kubectl cluster-info
+Kubernetes control plane is running at https://192.168.49.2:8443
+CoreDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+## kubectl get nodes -o wide
+NAME       STATUS     ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION      CONTAINER-RUNTIME
+minikube   NotReady   control-plane   4s    v1.35.1   192.168.49.2   <none>        Debian GNU/Linux 12 (bookworm)   6.17.0-1018-azure   docker://29.2.1
+
+============================================================
+Lab 3 - Hello Minikube
+============================================================
+
+## kubectl create deployment hello-minikube --image=registry.k8s.io/echoserver:1.10
+deployment.apps/hello-minikube created
+
+## kubectl expose deployment hello-minikube --type=NodePort --port=8080
+service/hello-minikube exposed
+
+## kubectl wait --for=condition=available --timeout=180s deployment/hello-minikube
+deployment.apps/hello-minikube condition met
+hello-minikube URL: http://192.168.49.2:32338
+
+
+Hostname: hello-minikube-6fcb694474-xrcxt
+
+Pod Information:
+	-no pod information available-
+
+Server values:
+	server_version=nginx: 1.13.3 - lua: 10008
+
+Request Information:
+	client_address=10.244.0.1
+	method=GET
+	real path=/
+	query=
+	request_version=1.1
+	request_scheme=http
+	request_uri=http://192.168.49.2:8080/
+
+Request Headers:
+	accept=*/*
+	host=192.168.49.2:32338
+	user-agent=curl/8.5.0
+
+Request Body:
+	-no body in request-
+
+
+## kubectl get deployments,pods,services -o wide
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                            SELECTOR
+deployment.apps/hello-minikube   1/1     1            1           8s    echoserver   registry.k8s.io/echoserver:1.10   app=hello-minikube
+
+NAME                                  READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+pod/hello-minikube-6fcb694474-xrcxt   1/1     Running   0          3s    10.244.0.3   minikube   <none>           <none>
+
+NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE   SELECTOR
+service/hello-minikube   NodePort    10.107.197.131   <none>        8080:32338/TCP   8s    app=hello-minikube
+service/kubernetes       ClusterIP   10.96.0.1        <none>        443/TCP          10s   <none>
+
+============================================================
+Lab 3 - Kubernetes Basics: Deploy and Explore
+============================================================
+
+## kubectl create deployment kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1
+deployment.apps/kubernetes-bootcamp created
+
+## kubectl wait --for=condition=available --timeout=180s deployment/kubernetes-bootcamp
+deployment.apps/kubernetes-bootcamp condition met
+
+## kubectl get deployments
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+hello-minikube        1/1     1            1           15s
+kubernetes-bootcamp   1/1     1            1           7s
+
+## kubectl get pods -o wide
+NAME                                   READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+hello-minikube-6fcb694474-xrcxt        1/1     Running   0          10s   10.244.0.3   minikube   <none>           <none>
+kubernetes-bootcamp-67fbdd6b79-jsbth   1/1     Running   0          7s    10.244.0.4   minikube   <none>           <none>
+Bootcamp pod: kubernetes-bootcamp-67fbdd6b79-jsbth
+
+## kubectl describe pod kubernetes-bootcamp-67fbdd6b79-jsbth
+Name:             kubernetes-bootcamp-67fbdd6b79-jsbth
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 12 Jun 2026 16:33:05 +0000
+Labels:           app=kubernetes-bootcamp
+                  pod-template-hash=67fbdd6b79
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.4
+IPs:
+  IP:           10.244.0.4
+Controlled By:  ReplicaSet/kubernetes-bootcamp-67fbdd6b79
+Containers:
+  kubernetes-bootcamp:
+    Container ID:   docker://6201b2de318434180c36cbc043ec4dc8b4f2cf591b83c6cdf7e96f07562fc3fb
+    Image:          gcr.io/google-samples/kubernetes-bootcamp:v1
+    Image ID:       docker-pullable://gcr.io/google-samples/kubernetes-bootcamp@sha256:0d6b8ee63bb57c5f5b6156f446b3bc3b3c143d233037f3a2f00e279c8fcc64af
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 12 Jun 2026 16:33:11 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-dbtg9 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-dbtg9:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  7s    default-scheduler  Successfully assigned default/kubernetes-bootcamp-67fbdd6b79-jsbth to minikube
+  Normal  Pulling    6s    kubelet            spec.containers{kubernetes-bootcamp}: Pulling image "gcr.io/google-samples/kubernetes-bootcamp:v1"
+  Normal  Pulled     1s    kubelet            spec.containers{kubernetes-bootcamp}: Successfully pulled image "gcr.io/google-samples/kubernetes-bootcamp:v1" in 5.119s (5.12s including waiting). Image size: 211287421 bytes.
+  Normal  Created    1s    kubelet            spec.containers{kubernetes-bootcamp}: Container created
+  Normal  Started    1s    kubelet            spec.containers{kubernetes-bootcamp}: Container started
+
+## kubectl logs kubernetes-bootcamp-67fbdd6b79-jsbth
+Kubernetes Bootcamp App Started At: 2026-06-12T16:33:11.293Z | Running On:  kubernetes-bootcamp-67fbdd6b79-jsbth 
+
+
+## kubectl exec kubernetes-bootcamp-67fbdd6b79-jsbth -- env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=kubernetes-bootcamp-67fbdd6b79-jsbth
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+HELLO_MINIKUBE_PORT=tcp://10.107.197.131:8080
+HELLO_MINIKUBE_PORT_8080_TCP=tcp://10.107.197.131:8080
+KUBERNETES_SERVICE_PORT_HTTPS=443
+HELLO_MINIKUBE_SERVICE_PORT=8080
+HELLO_MINIKUBE_PORT_8080_TCP_PROTO=tcp
+HELLO_MINIKUBE_PORT_8080_TCP_PORT=8080
+KUBERNETES_PORT=tcp://10.96.0.1:443
+HELLO_MINIKUBE_SERVICE_HOST=10.107.197.131
+HELLO_MINIKUBE_PORT_8080_TCP_ADDR=10.107.197.131
+NPM_CONFIG_LOGLEVEL=info
+NODE_VERSION=6.3.1
+HOME=/root
+
+============================================================
+Lab 3 - Expose
+============================================================
+
+## kubectl expose deployment/kubernetes-bootcamp --type=NodePort --port 8080
+service/kubernetes-bootcamp exposed
+
+## kubectl get services -o wide
+NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE   SELECTOR
+hello-minikube        NodePort    10.107.197.131   <none>        8080:32338/TCP   15s   app=hello-minikube
+kubernetes            ClusterIP   10.96.0.1        <none>        443/TCP          17s   <none>
+kubernetes-bootcamp   NodePort    10.98.194.50     <none>        8080:30191/TCP   0s    app=kubernetes-bootcamp
+kubernetes-bootcamp URL: http://192.168.49.2:30191
+curl: (7) Failed to connect to 192.168.49.2 port 30191 after 0 ms: Couldn't connect to server
+curl retry 1/20 for http://192.168.49.2:30191
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-67fbdd6b79-jsbth | v=1
+
+============================================================
+Lab 3 - Scale
+============================================================
+
+## kubectl scale deployments/kubernetes-bootcamp --replicas=4
+deployment.apps/kubernetes-bootcamp scaled
+
+## kubectl wait --for=condition=available --timeout=180s deployment/kubernetes-bootcamp
+deployment.apps/kubernetes-bootcamp condition met
+
+## kubectl get deployments
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+hello-minikube        1/1     1            1           20s
+kubernetes-bootcamp   4/4     4            4           12s
+
+## kubectl get pods -o wide
+NAME                                   READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+hello-minikube-6fcb694474-xrcxt        1/1     Running   0          15s   10.244.0.3   minikube   <none>           <none>
+kubernetes-bootcamp-67fbdd6b79-5dcwx   1/1     Running   0          1s    10.244.0.5   minikube   <none>           <none>
+kubernetes-bootcamp-67fbdd6b79-jsbth   1/1     Running   0          12s   10.244.0.4   minikube   <none>           <none>
+kubernetes-bootcamp-67fbdd6b79-nhtjt   1/1     Running   0          1s    10.244.0.7   minikube   <none>           <none>
+kubernetes-bootcamp-67fbdd6b79-zxh5s   1/1     Running   0          1s    10.244.0.6   minikube   <none>           <none>
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-67fbdd6b79-jsbth | v=1
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-67fbdd6b79-5dcwx | v=1
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-67fbdd6b79-jsbth | v=1
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-67fbdd6b79-5dcwx | v=1
+
+============================================================
+Lab 3 - Update
+============================================================
+
+## kubectl scale deployments/kubernetes-bootcamp --replicas=2
+deployment.apps/kubernetes-bootcamp scaled
+
+## kubectl wait --for=condition=available --timeout=180s deployment/kubernetes-bootcamp
+deployment.apps/kubernetes-bootcamp condition met
+
+## kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=nginx:1.27-alpine
+deployment.apps/kubernetes-bootcamp image updated
+
+## kubectl rollout status deployments/kubernetes-bootcamp --timeout=300s
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 old replicas are pending termination...
+deployment "kubernetes-bootcamp" successfully rolled out
+
+## kubectl describe deployments/kubernetes-bootcamp
+Name:                   kubernetes-bootcamp
+Namespace:              default
+CreationTimestamp:      Fri, 12 Jun 2026 16:33:05 +0000
+Labels:                 app=kubernetes-bootcamp
+Annotations:            deployment.kubernetes.io/revision: 2
+Selector:               app=kubernetes-bootcamp
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=kubernetes-bootcamp
+  Containers:
+   kubernetes-bootcamp:
+    Image:         nginx:1.27-alpine
+    Port:          <none>
+    Host Port:     <none>
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  kubernetes-bootcamp-67fbdd6b79 (0/0 replicas created)
+NewReplicaSet:   kubernetes-bootcamp-7566cfdcf (2/2 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  16s   deployment-controller  Scaled up replica set kubernetes-bootcamp-67fbdd6b79 from 0 to 1
+  Normal  ScalingReplicaSet  5s    deployment-controller  Scaled up replica set kubernetes-bootcamp-67fbdd6b79 from 1 to 4
+  Normal  ScalingReplicaSet  4s    deployment-controller  Scaled down replica set kubernetes-bootcamp-67fbdd6b79 from 4 to 2
+  Normal  ScalingReplicaSet  4s    deployment-controller  Scaled up replica set kubernetes-bootcamp-7566cfdcf from 0 to 1
+  Normal  ScalingReplicaSet  1s    deployment-controller  Scaled down replica set kubernetes-bootcamp-67fbdd6b79 from 2 to 1
+  Normal  ScalingReplicaSet  1s    deployment-controller  Scaled up replica set kubernetes-bootcamp-7566cfdcf from 1 to 2
+  Normal  ScalingReplicaSet  0s    deployment-controller  Scaled down replica set kubernetes-bootcamp-67fbdd6b79 from 1 to 0
+
+## kubectl rollout undo deployments/kubernetes-bootcamp
+deployment.apps/kubernetes-bootcamp rolled back
+
+## kubectl rollout status deployments/kubernetes-bootcamp --timeout=300s
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "kubernetes-bootcamp" rollout to finish: 1 old replicas are pending termination...
+deployment "kubernetes-bootcamp" successfully rolled out
+
+## kubectl describe deployments/kubernetes-bootcamp
+Name:                   kubernetes-bootcamp
+Namespace:              default
+CreationTimestamp:      Fri, 12 Jun 2026 16:33:05 +0000
+Labels:                 app=kubernetes-bootcamp
+Annotations:            deployment.kubernetes.io/revision: 3
+Selector:               app=kubernetes-bootcamp
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=kubernetes-bootcamp
+  Containers:
+   kubernetes-bootcamp:
+    Image:         gcr.io/google-samples/kubernetes-bootcamp:v1
+    Port:          <none>
+    Host Port:     <none>
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  kubernetes-bootcamp-7566cfdcf (0/0 replicas created)
+NewReplicaSet:   kubernetes-bootcamp-67fbdd6b79 (2/2 replicas created)
+Events:
+  Type    Reason             Age               From                   Message
+  ----    ------             ----              ----                   -------
+  Normal  ScalingReplicaSet  7s                deployment-controller  Scaled up replica set kubernetes-bootcamp-67fbdd6b79 from 1 to 4
+  Normal  ScalingReplicaSet  6s                deployment-controller  Scaled down replica set kubernetes-bootcamp-67fbdd6b79 from 4 to 2
+  Normal  ScalingReplicaSet  6s                deployment-controller  Scaled up replica set kubernetes-bootcamp-7566cfdcf from 0 to 1
+  Normal  ScalingReplicaSet  3s                deployment-controller  Scaled down replica set kubernetes-bootcamp-67fbdd6b79 from 2 to 1
+  Normal  ScalingReplicaSet  3s                deployment-controller  Scaled up replica set kubernetes-bootcamp-7566cfdcf from 1 to 2
+  Normal  ScalingReplicaSet  2s (x2 over 18s)  deployment-controller  Scaled up replica set kubernetes-bootcamp-67fbdd6b79 from 0 to 1
+  Normal  ScalingReplicaSet  2s                deployment-controller  Scaled down replica set kubernetes-bootcamp-67fbdd6b79 from 1 to 0
+  Normal  ScalingReplicaSet  1s                deployment-controller  Scaled down replica set kubernetes-bootcamp-7566cfdcf from 2 to 1
+  Normal  ScalingReplicaSet  1s                deployment-controller  Scaled up replica set kubernetes-bootcamp-67fbdd6b79 from 1 to 2
+  Normal  ScalingReplicaSet  0s                deployment-controller  (combined from similar events): Scaled down replica set kubernetes-bootcamp-7566cfdcf from 1 to 0
+
+============================================================
+Lab 4 - Install Istio
+============================================================
+
+Downloading istio-1.27.1 from https://github.com/istio/istio/releases/download/1.27.1/istio-1.27.1-linux-amd64.tar.gz ...
+
+Istio 1.27.1 download complete!
+
+The Istio release archive has been downloaded to the istio-1.27.1 directory.
+
+To configure the istioctl client tool for your workstation,
+add the /home/runner/work/cloud-labs-03-04-kubernetes-istio/cloud-labs-03-04-kubernetes-istio/istio-1.27.1/bin directory to your environment path variable with:
+	 export PATH="$PATH:/home/runner/work/cloud-labs-03-04-kubernetes-istio/cloud-labs-03-04-kubernetes-istio/istio-1.27.1/bin"
+
+Begin the Istio pre-installation check by running:
+	 istioctl x precheck 
+
+Try Istio in ambient mode
+	https://istio.io/latest/docs/ambient/getting-started/
+Try Istio in sidecar mode
+	https://istio.io/latest/docs/setup/getting-started/
+Install guides for ambient mode
+	https://istio.io/latest/docs/ambient/install/
+Install guides for sidecar mode
+	https://istio.io/latest/docs/setup/install/
+
+Need more information? Visit https://istio.io/latest/docs/ 
+
+## istioctl version --remote=false
+client version: 1.27.1
+
+## istioctl install --set profile=demo -y
+        |\          
+        | \         
+        |  \        
+        |   \       
+      /||    \      
+     / ||     \     
+    /  ||      \    
+   /   ||       \   
+  /    ||        \  
+ /     ||         \ 
+/______||__________\
+____________________
+  \__       _____/  
+     \_____/        
+
+WARNING: Istio 1.26.0 may be out of support (EOL) already: see https://istio.io/latest/docs/releases/supported-releases/ for supported releases
+
+- Processing resources for Istio core.
+✔ Istio core installed ⛵️
+- Processing resources for Istiod.
+- Processing resources for Istiod. Waiting for Deployment/istio-system/istiod
+✔ Istiod installed 🧠
+- Processing resources for Egress gateways, Ingress gateways.
+- Processing resources for Egress gateways, Ingress gateways. Waiting for Deployment/istio-system...
+✔ Ingress gateways installed 🛬
+✔ Egress gateways installed 🛫
+- Pruning removed resources
+✔ Installation complete
+## kubectl get pods -n istio-system -o wide
+NAME                                    READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+istio-egressgateway-5fbf54b4bd-p82n9    1/1     Running   0          8s    10.244.0.14   minikube   <none>           <none>
+istio-ingressgateway-77c8b58566-v282r   1/1     Running   0          8s    10.244.0.13   minikube   <none>           <none>
+istiod-5dc9d7b78-dqts5                  1/1     Running   0          14s   10.244.0.12   minikube   <none>           <none>
+
+## kubectl label namespace default istio-injection=enabled --overwrite
+namespace/default labeled
+
+============================================================
+Lab 4 - Gateway API CRDs
+============================================================
+customresourcedefinition.apiextensions.k8s.io/gatewayclasses.gateway.networking.k8s.io created
+customresourcedefinition.apiextensions.k8s.io/gateways.gateway.networking.k8s.io created
+customresourcedefinition.apiextensions.k8s.io/grpcroutes.gateway.networking.k8s.io created
+customresourcedefinition.apiextensions.k8s.io/httproutes.gateway.networking.k8s.io created
+customresourcedefinition.apiextensions.k8s.io/referencegrants.gateway.networking.k8s.io created
+
+## kubectl get crd gateways.gateway.networking.k8s.io
+NAME                                 CREATED AT
+gateways.gateway.networking.k8s.io   2026-06-12T16:33:41Z
+
+============================================================
+Lab 4 - Bookinfo
+============================================================
+
+## kubectl apply -f istio-1.27.1/samples/bookinfo/platform/kube/bookinfo.yaml
+service/details created
+serviceaccount/bookinfo-details created
+deployment.apps/details-v1 created
+service/ratings created
+serviceaccount/bookinfo-ratings created
+deployment.apps/ratings-v1 created
+service/reviews created
+serviceaccount/bookinfo-reviews created
+deployment.apps/reviews-v1 created
+deployment.apps/reviews-v2 created
+deployment.apps/reviews-v3 created
+service/productpage created
+serviceaccount/bookinfo-productpage created
+deployment.apps/productpage-v1 created
+
+## kubectl wait --for=condition=available --timeout=300s deployment/productpage-v1
+deployment.apps/productpage-v1 condition met
+
+## kubectl wait --for=condition=available --timeout=300s deployment/details-v1
+deployment.apps/details-v1 condition met
+
+## kubectl wait --for=condition=available --timeout=300s deployment/ratings-v1
+deployment.apps/ratings-v1 condition met
+
+## kubectl wait --for=condition=available --timeout=300s deployment/reviews-v1
+deployment.apps/reviews-v1 condition met
+
+## kubectl wait --for=condition=available --timeout=300s deployment/reviews-v2
+deployment.apps/reviews-v2 condition met
+
+## kubectl wait --for=condition=available --timeout=300s deployment/reviews-v3
+deployment.apps/reviews-v3 condition met
+
+## kubectl get pods,services -o wide
+NAME                                       READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+pod/details-v1-6cc9f5cc44-wxzdp            2/2     Running   0          24s   10.244.0.15   minikube   <none>           <none>
+pod/hello-minikube-6fcb694474-xrcxt        1/1     Running   0          64s   10.244.0.3    minikube   <none>           <none>
+pod/kubernetes-bootcamp-67fbdd6b79-l586m   1/1     Running   0          44s   10.244.0.11   minikube   <none>           <none>
+pod/kubernetes-bootcamp-67fbdd6b79-pjx5d   1/1     Running   0          45s   10.244.0.10   minikube   <none>           <none>
+pod/productpage-v1-7f885b46fc-6lvng        2/2     Running   0          24s   10.244.0.20   minikube   <none>           <none>
+pod/ratings-v1-77b8b6df5b-fr9xd            2/2     Running   0          24s   10.244.0.17   minikube   <none>           <none>
+pod/reviews-v1-fdbf79cd8-b7fvg             2/2     Running   0          24s   10.244.0.16   minikube   <none>           <none>
+pod/reviews-v2-674c6d8b4-4hrng             2/2     Running   0          24s   10.244.0.18   minikube   <none>           <none>
+pod/reviews-v3-7b775c7568-x5wq5            2/2     Running   0          24s   10.244.0.19   minikube   <none>           <none>
+
+NAME                          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE   SELECTOR
+service/details               ClusterIP   10.111.10.90     <none>        9080/TCP         24s   app=details
+service/hello-minikube        NodePort    10.107.197.131   <none>        8080:32338/TCP   69s   app=hello-minikube
+service/kubernetes            ClusterIP   10.96.0.1        <none>        443/TCP          71s   <none>
+service/kubernetes-bootcamp   NodePort    10.98.194.50     <none>        8080:30191/TCP   54s   app=kubernetes-bootcamp
+service/productpage           ClusterIP   10.109.222.249   <none>        9080/TCP         24s   app=productpage
+service/ratings               ClusterIP   10.106.151.41    <none>        9080/TCP         24s   app=ratings
+service/reviews               ClusterIP   10.105.132.66    <none>        9080/TCP         24s   app=reviews
+
+## kubectl apply -f istio-1.27.1/samples/bookinfo/gateway-api/bookinfo-gateway.yaml
+gateway.gateway.networking.k8s.io/bookinfo-gateway created
+httproute.gateway.networking.k8s.io/bookinfo created
+error: timed out waiting for the condition on gateways/bookinfo-gateway
+
+## kubectl get gateway,httproute -o wide
+NAME                                                 CLASS   ADDRESS   PROGRAMMED   AGE
+gateway.gateway.networking.k8s.io/bookinfo-gateway   istio             False        60s
+
+NAME                                           HOSTNAMES   AGE
+httproute.gateway.networking.k8s.io/bookinfo               60s
+
+============================================================
+Lab 4 - Access Bookinfo
+============================================================
+Forwarding from 0.0.0.0:9080 -> 9080
+Handling connection for 9080
+Bookinfo productpage title:
+<title>Simple Bookstore App</title>
+
+============================================================
+Lab 4 - Dashboard Add-ons
+============================================================
+
+## kubectl apply -f istio-1.27.1/samples/addons
+serviceaccount/grafana created
+configmap/grafana created
+service/grafana created
+deployment.apps/grafana created
+configmap/istio-grafana-dashboards created
+configmap/istio-services-grafana-dashboards created
+deployment.apps/jaeger created
+service/tracing created
+service/zipkin created
+service/jaeger-collector created
+serviceaccount/kiali created
+configmap/kiali created
+clusterrole.rbac.authorization.k8s.io/kiali created
+clusterrolebinding.rbac.authorization.k8s.io/kiali created
+service/kiali created
+deployment.apps/kiali created
+serviceaccount/loki created
+configmap/loki created
+configmap/loki-runtime created
+clusterrole.rbac.authorization.k8s.io/loki-clusterrole created
+clusterrolebinding.rbac.authorization.k8s.io/loki-clusterrolebinding created
+service/loki-memberlist created
+service/loki-headless created
+service/loki created
+statefulset.apps/loki created
+serviceaccount/prometheus created
+configmap/prometheus created
+clusterrole.rbac.authorization.k8s.io/prometheus created
+clusterrolebinding.rbac.authorization.k8s.io/prometheus created
+service/prometheus created
+deployment.apps/prometheus created
+
+## kubectl get pods -n istio-system -o wide
+NAME                                    READY   STATUS              RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+grafana-665dcbcb9b-4vmgk                0/1     Running             0          20s     10.244.0.22   minikube   <none>           <none>
+istio-egressgateway-5fbf54b4bd-p82n9    1/1     Running             0          2m4s    10.244.0.14   minikube   <none>           <none>
+istio-ingressgateway-77c8b58566-v282r   1/1     Running             0          2m4s    10.244.0.13   minikube   <none>           <none>
+istiod-5dc9d7b78-dqts5                  1/1     Running             0          2m10s   10.244.0.12   minikube   <none>           <none>
+jaeger-75846c549c-c55tj                 1/1     Running             0          20s     10.244.0.23   minikube   <none>           <none>
+kiali-7d8fcc45dd-6zw5x                  0/1     Running             0          20s     10.244.0.24   minikube   <none>           <none>
+loki-0                                  0/2     ContainerCreating   0          20s     <none>        minikube   <none>           <none>
+prometheus-759d7bcd86-f9xpp             0/2     ContainerCreating   0          20s     <none>        minikube   <none>           <none>
+
+## kubectl rollout status deployment/kiali -n istio-system --timeout=240s
+Waiting for deployment "kiali" rollout to finish: 0 of 1 updated replicas are available...
+deployment "kiali" successfully rolled out
+
+## kubectl rollout status deployment/prometheus -n istio-system --timeout=240s
+deployment "prometheus" successfully rolled out
+
+## kubectl get svc -n istio-system kiali prometheus grafana tracing jaeger-collector -o wide
+NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                          AGE   SELECTOR
+kiali              ClusterIP   10.96.217.242    <none>        20001/TCP,9090/TCP                               51s   app.kubernetes.io/instance=kiali,app.kubernetes.io/name=kiali
+prometheus         ClusterIP   10.103.67.108    <none>        9090/TCP                                         51s   app.kubernetes.io/component=server,app.kubernetes.io/instance=prometheus,app.kubernetes.io/name=prometheus
+grafana            ClusterIP   10.102.216.210   <none>        3000/TCP                                         51s   app.kubernetes.io/instance=grafana,app.kubernetes.io/name=grafana
+tracing            ClusterIP   10.105.151.84    <none>        80/TCP,16685/TCP                                 51s   app=jaeger
+jaeger-collector   ClusterIP   10.105.60.249    <none>        14268/TCP,14250/TCP,9411/TCP,4317/TCP,4318/TCP   51s   app=jaeger
+
+============================================================
+Final State
+============================================================
+
+## kubectl get all -A
+NAMESPACE      NAME                                         READY   STATUS    RESTARTS   AGE
+default        pod/bookinfo-gateway-istio-b6f96bf84-f9jzk   1/1     Running   0          2m
+default        pod/details-v1-6cc9f5cc44-wxzdp              2/2     Running   0          2m25s
+default        pod/hello-minikube-6fcb694474-xrcxt          1/1     Running   0          3m5s
+default        pod/kubernetes-bootcamp-67fbdd6b79-l586m     1/1     Running   0          2m45s
+default        pod/kubernetes-bootcamp-67fbdd6b79-pjx5d     1/1     Running   0          2m46s
+default        pod/productpage-v1-7f885b46fc-6lvng          2/2     Running   0          2m25s
+default        pod/ratings-v1-77b8b6df5b-fr9xd              2/2     Running   0          2m25s
+default        pod/reviews-v1-fdbf79cd8-b7fvg               2/2     Running   0          2m25s
+default        pod/reviews-v2-674c6d8b4-4hrng               2/2     Running   0          2m25s
+default        pod/reviews-v3-7b775c7568-x5wq5              2/2     Running   0          2m25s
+istio-system   pod/grafana-665dcbcb9b-4vmgk                 1/1     Running   0          51s
+istio-system   pod/istio-egressgateway-5fbf54b4bd-p82n9     1/1     Running   0          2m35s
+istio-system   pod/istio-ingressgateway-77c8b58566-v282r    1/1     Running   0          2m35s
+istio-system   pod/istiod-5dc9d7b78-dqts5                   1/1     Running   0          2m41s
+istio-system   pod/jaeger-75846c549c-c55tj                  1/1     Running   0          51s
+istio-system   pod/kiali-7d8fcc45dd-6zw5x                   1/1     Running   0          51s
+istio-system   pod/loki-0                                   1/2     Running   0          51s
+istio-system   pod/prometheus-759d7bcd86-f9xpp              2/2     Running   0          51s
+kube-system    pod/coredns-7d764666f9-b9ttq                 1/1     Running   0          3m5s
+kube-system    pod/etcd-minikube                            1/1     Running   0          3m11s
+kube-system    pod/kube-apiserver-minikube                  1/1     Running   0          3m11s
+kube-system    pod/kube-controller-manager-minikube         1/1     Running   0          3m11s
+kube-system    pod/kube-proxy-z9wt6                         1/1     Running   0          3m6s
+kube-system    pod/kube-scheduler-minikube                  1/1     Running   0          3m11s
+kube-system    pod/storage-provisioner                      1/1     Running   0          3m10s
+
+NAMESPACE      NAME                             TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                                                                      AGE
+default        service/bookinfo-gateway-istio   LoadBalancer   10.103.22.194    <pending>     15021:31726/TCP,80:32135/TCP                                                 2m
+default        service/details                  ClusterIP      10.111.10.90     <none>        9080/TCP                                                                     2m25s
+default        service/hello-minikube           NodePort       10.107.197.131   <none>        8080:32338/TCP                                                               3m10s
+default        service/kubernetes               ClusterIP      10.96.0.1        <none>        443/TCP                                                                      3m12s
+default        service/kubernetes-bootcamp      NodePort       10.98.194.50     <none>        8080:30191/TCP                                                               2m55s
+default        service/productpage              ClusterIP      10.109.222.249   <none>        9080/TCP                                                                     2m25s
+default        service/ratings                  ClusterIP      10.106.151.41    <none>        9080/TCP                                                                     2m25s
+default        service/reviews                  ClusterIP      10.105.132.66    <none>        9080/TCP                                                                     2m25s
+istio-system   service/grafana                  ClusterIP      10.102.216.210   <none>        3000/TCP                                                                     51s
+istio-system   service/istio-egressgateway      ClusterIP      10.110.12.8      <none>        80/TCP,443/TCP                                                               2m35s
+istio-system   service/istio-ingressgateway     LoadBalancer   10.100.32.26     <pending>     15021:32667/TCP,80:31641/TCP,443:32665/TCP,31400:30435/TCP,15443:31213/TCP   2m35s
+istio-system   service/istiod                   ClusterIP      10.110.66.182    <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP                                        2m41s
+istio-system   service/jaeger-collector         ClusterIP      10.105.60.249    <none>        14268/TCP,14250/TCP,9411/TCP,4317/TCP,4318/TCP                               51s
+istio-system   service/kiali                    ClusterIP      10.96.217.242    <none>        20001/TCP,9090/TCP                                                           51s
+istio-system   service/loki                     ClusterIP      10.107.148.161   <none>        3100/TCP,9095/TCP                                                            51s
+istio-system   service/loki-headless            ClusterIP      None             <none>        3100/TCP                                                                     51s
+istio-system   service/loki-memberlist          ClusterIP      None             <none>        7946/TCP                                                                     51s
+istio-system   service/prometheus               ClusterIP      10.103.67.108    <none>        9090/TCP                                                                     51s
+istio-system   service/tracing                  ClusterIP      10.105.151.84    <none>        80/TCP,16685/TCP                                                             51s
+istio-system   service/zipkin                   ClusterIP      10.98.157.122    <none>        9411/TCP                                                                     51s
+kube-system    service/kube-dns                 ClusterIP      10.96.0.10       <none>        53/UDP,53/TCP,9153/TCP                                                       3m11s
+
+NAMESPACE     NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system   daemonset.apps/kube-proxy   1         1         1       1            1           kubernetes.io/os=linux   3m11s
+
+NAMESPACE      NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
+default        deployment.apps/bookinfo-gateway-istio   1/1     1            1           2m
+default        deployment.apps/details-v1               1/1     1            1           2m25s
+default        deployment.apps/hello-minikube           1/1     1            1           3m10s
+default        deployment.apps/kubernetes-bootcamp      2/2     2            2           3m2s
+default        deployment.apps/productpage-v1           1/1     1            1           2m25s
+default        deployment.apps/ratings-v1               1/1     1            1           2m25s
+default        deployment.apps/reviews-v1               1/1     1            1           2m25s
+default        deployment.apps/reviews-v2               1/1     1            1           2m25s
+default        deployment.apps/reviews-v3               1/1     1            1           2m25s
+istio-system   deployment.apps/grafana                  1/1     1            1           51s
+istio-system   deployment.apps/istio-egressgateway      1/1     1            1           2m35s
+istio-system   deployment.apps/istio-ingressgateway     1/1     1            1           2m35s
+istio-system   deployment.apps/istiod                   1/1     1            1           2m41s
+istio-system   deployment.apps/jaeger                   1/1     1            1           51s
+istio-system   deployment.apps/kiali                    1/1     1            1           51s
+istio-system   deployment.apps/prometheus               1/1     1            1           51s
+kube-system    deployment.apps/coredns                  1/1     1            1           3m11s
+
+NAMESPACE      NAME                                               DESIRED   CURRENT   READY   AGE
+default        replicaset.apps/bookinfo-gateway-istio-b6f96bf84   1         1         1       2m
+default        replicaset.apps/details-v1-6cc9f5cc44              1         1         1       2m25s
+default        replicaset.apps/hello-minikube-6fcb694474          1         1         1       3m6s
+default        replicaset.apps/kubernetes-bootcamp-67fbdd6b79     2         2         2       3m2s
+default        replicaset.apps/kubernetes-bootcamp-7566cfdcf      0         0         0       2m50s
+default        replicaset.apps/productpage-v1-7f885b46fc          1         1         1       2m25s
+default        replicaset.apps/ratings-v1-77b8b6df5b              1         1         1       2m25s
+default        replicaset.apps/reviews-v1-fdbf79cd8               1         1         1       2m25s
+default        replicaset.apps/reviews-v2-674c6d8b4               1         1         1       2m25s
+default        replicaset.apps/reviews-v3-7b775c7568              1         1         1       2m25s
+istio-system   replicaset.apps/grafana-665dcbcb9b                 1         1         1       51s
+istio-system   replicaset.apps/istio-egressgateway-5fbf54b4bd     1         1         1       2m35s
+istio-system   replicaset.apps/istio-ingressgateway-77c8b58566    1         1         1       2m35s
+istio-system   replicaset.apps/istiod-5dc9d7b78                   1         1         1       2m41s
+istio-system   replicaset.apps/jaeger-75846c549c                  1         1         1       51s
+istio-system   replicaset.apps/kiali-7d8fcc45dd                   1         1         1       51s
+istio-system   replicaset.apps/prometheus-759d7bcd86              1         1         1       51s
+kube-system    replicaset.apps/coredns-7d764666f9                 1         1         1       3m6s
+
+NAMESPACE      NAME                    READY   AGE
+istio-system   statefulset.apps/loki   0/1     51s
+
+## istioctl proxy-status
+NAME                                                   CLUSTER        ISTIOD                     VERSION     SUBSCRIBED TYPES
+bookinfo-gateway-istio-b6f96bf84-f9jzk.default         Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      4 (CDS,LDS,EDS,RDS)
+details-v1-6cc9f5cc44-wxzdp.default                    Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      4 (CDS,LDS,EDS,RDS)
+istio-egressgateway-5fbf54b4bd-p82n9.istio-system      Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      3 (CDS,LDS,EDS)
+istio-ingressgateway-77c8b58566-v282r.istio-system     Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      3 (CDS,LDS,EDS)
+productpage-v1-7f885b46fc-6lvng.default                Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      4 (CDS,LDS,EDS,RDS)
+ratings-v1-77b8b6df5b-fr9xd.default                    Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      4 (CDS,LDS,EDS,RDS)
+reviews-v1-fdbf79cd8-b7fvg.default                     Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      4 (CDS,LDS,EDS,RDS)
+reviews-v2-674c6d8b4-4hrng.default                     Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      4 (CDS,LDS,EDS,RDS)
+reviews-v3-7b775c7568-x5wq5.default                    Kubernetes     istiod-5dc9d7b78-dqts5     1.27.1      4 (CDS,LDS,EDS,RDS)
+Experiment completed successfully.
