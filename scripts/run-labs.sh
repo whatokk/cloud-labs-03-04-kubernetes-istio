@@ -18,6 +18,19 @@ section() {
   echo "============================================================" | tee -a "$LOG"
 }
 
+curl_retry() {
+  local url="$1"
+  local tries="${2:-20}"
+  for i in $(seq 1 "$tries"); do
+    if curl -fsS "$url" 2>&1 | tee -a "$LOG"; then
+      return 0
+    fi
+    echo "curl retry $i/$tries for $url" | tee -a "$LOG"
+    sleep 3
+  done
+  return 1
+}
+
 section "Environment"
 run docker --version
 run kubectl version --client=true
@@ -53,20 +66,20 @@ run kubectl expose deployment/kubernetes-bootcamp --type=NodePort --port 8080
 run kubectl get services -o wide
 BOOTCAMP_URL="$(minikube service kubernetes-bootcamp --url)"
 echo "kubernetes-bootcamp URL: $BOOTCAMP_URL" | tee -a "$LOG"
-curl -fsS "$BOOTCAMP_URL" | tee -a "$LOG"
+curl_retry "$BOOTCAMP_URL"
 
 section "Lab 3 - Scale"
 run kubectl scale deployments/kubernetes-bootcamp --replicas=4
 run kubectl wait --for=condition=available --timeout=180s deployment/kubernetes-bootcamp
 run kubectl get deployments
 run kubectl get pods -o wide
-for i in 1 2 3 4; do curl -fsS "$BOOTCAMP_URL" | tee -a "$LOG"; done
+for i in 1 2 3 4; do curl_retry "$BOOTCAMP_URL" 10; done
 
 section "Lab 3 - Update"
 run kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=gcr.io/google-samples/kubernetes-bootcamp:v2
 run kubectl rollout status deployments/kubernetes-bootcamp --timeout=180s
 run kubectl describe deployments/kubernetes-bootcamp
-curl -fsS "$BOOTCAMP_URL" | tee -a "$LOG"
+curl_retry "$BOOTCAMP_URL" 10
 run kubectl rollout undo deployments/kubernetes-bootcamp
 run kubectl rollout status deployments/kubernetes-bootcamp --timeout=180s
 run kubectl describe deployments/kubernetes-bootcamp
