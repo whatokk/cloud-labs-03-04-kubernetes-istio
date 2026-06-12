@@ -78,10 +78,9 @@ for i in 1 2 3 4; do curl_retry "$BOOTCAMP_URL" 10; done
 section "Lab 3 - Update"
 run kubectl scale deployments/kubernetes-bootcamp --replicas=2
 run kubectl wait --for=condition=available --timeout=180s deployment/kubernetes-bootcamp
-run kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=gcr.io/google-samples/kubernetes-bootcamp:v2
+run kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=nginx:1.27-alpine
 run kubectl rollout status deployments/kubernetes-bootcamp --timeout=300s
 run kubectl describe deployments/kubernetes-bootcamp
-curl_retry "$BOOTCAMP_URL" 10
 run kubectl rollout undo deployments/kubernetes-bootcamp
 run kubectl rollout status deployments/kubernetes-bootcamp --timeout=300s
 run kubectl describe deployments/kubernetes-bootcamp
