@@ -127,7 +127,7 @@ sleep 20
 run kubectl get pods -n istio-system -o wide
 run kubectl rollout status deployment/kiali -n istio-system --timeout=240s
 run kubectl rollout status deployment/prometheus -n istio-system --timeout=240s
-run kubectl get svc -n istio-system kiali prometheus grafana jaeger -o wide
+run kubectl get svc -n istio-system kiali prometheus grafana tracing jaeger-collector -o wide
 
 section "Final State"
 run kubectl get all -A
