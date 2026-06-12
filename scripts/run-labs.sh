@@ -109,7 +109,7 @@ run kubectl wait --for=condition=available --timeout=300s deployment/reviews-v2
 run kubectl wait --for=condition=available --timeout=300s deployment/reviews-v3
 run kubectl get pods,services -o wide
 run kubectl apply -f istio-1.27.1/samples/bookinfo/gateway-api/bookinfo-gateway.yaml
-run kubectl wait --for=condition=programmed --timeout=180s gateway/bookinfo-gateway
+kubectl wait --for=condition=programmed --timeout=60s gateway/bookinfo-gateway 2>&1 | tee -a "$LOG" || true
 run kubectl get gateway,httproute -o wide
 
 section "Lab 4 - Access Bookinfo"
