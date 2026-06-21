@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'evidence/**'
+      - 'report/**'
+      - 'README.md'
 
 jobs:
   run-labs:
@@ -34,4 +38,3 @@ jobs:
         with:
           name: lab3-lab4-evidence
           path: evidence/
-

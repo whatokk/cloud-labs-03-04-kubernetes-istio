@@ -47,7 +47,7 @@ run kubectl expose deployment hello-minikube --type=NodePort --port=8080
 run kubectl wait --for=condition=available --timeout=180s deployment/hello-minikube
 HELLO_URL="$(minikube service hello-minikube --url)"
 echo "hello-minikube URL: $HELLO_URL" | tee -a "$LOG"
-curl -fsS "$HELLO_URL" | head -40 | tee -a "$LOG"
+curl_retry "$HELLO_URL" | head -40 | tee -a "$LOG"
 run kubectl get deployments,pods,services -o wide
 
 section "Lab 3 - Kubernetes Basics: Deploy and Explore"
